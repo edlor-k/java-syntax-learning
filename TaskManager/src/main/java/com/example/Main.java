@@ -1,5 +1,7 @@
 package com.example;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -8,8 +10,9 @@ public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         TaskManager taskManager = new TaskManager();
+        String tempString = "";
         char ch;
-        int numberOfTasks;
+        int numberOfTasks = -1;
         boolean continueFlag = true;
         int choice;
         boolean validInput;
@@ -21,20 +24,7 @@ public class Main {
             System.out.println("4) Удалить задачу");
             System.out.println("5) Очистить список");
             System.out.println("6) Выйти из программы\n");
-            choice = -1;
-            validInput = false;
-
-            while (!validInput) {
-                System.out.print("Выберите опцию: ");
-                String input = scanner.nextLine();
-                try {
-                    choice = Integer.parseInt(input);
-                    validInput = true;
-                } catch (NumberFormatException e) {
-                    System.out.println("Ошибка: введите число!");
-                }
-            }
-
+            choice = getIntFromScanner(scanner, "Выберите опцию: ");
             switch (choice) {
                 case 1:
                     taskManager.showTasks();
@@ -45,15 +35,12 @@ public class Main {
                     String taskName = scanner.nextLine();
                     System.out.println("\nВведите описание новой задачи: ");
                     String taskDescription = scanner.nextLine();
-                    Task clearTask = new Task(taskName, taskDescription);
-                    taskManager.addTask(clearTask);
+                    taskManager.addTask(new Task(taskName, taskDescription));
                     System.out.println("Задача успешно добавлена\n");
                     break;
                 case 3:
                     taskManager.showTasks();
-                    System.out.println("\nВведите номер задачи: ");
-                    numberOfTasks = scanner.nextInt();
-                    scanner.nextLine();
+                    numberOfTasks = getIntFromScanner(scanner, "Введите номер задачи: ");
                     if (taskManager.makeCompleted(numberOfTasks))
                         System.out.println("Успешно!\n");
                     else
@@ -61,9 +48,7 @@ public class Main {
                     break;
                 case 4:
                     taskManager.showTasks();
-                    System.out.println("\nВведите номер задачи: ");
-                    numberOfTasks = scanner.nextInt();
-                    scanner.nextLine();
+                    numberOfTasks = getIntFromScanner(scanner, "Введите номер задачи: ");
                     if (taskManager.removeTask(numberOfTasks))
                         System.out.println("Успешно!\n");
                     else
@@ -89,9 +74,27 @@ public class Main {
                     if (ch == 'y')
                         continueFlag = false;
                     break;
+                default:
+                    System.out.println("Такого номера опции не существует\n");
             }
         }
         System.out.println("Работа программы завершена успешно.");
+    }
+
+    public static int getIntFromScanner(Scanner scanner, String prompt) {
+        int choice = -1;
+        boolean validInput = false;
+        while (!validInput) {
+            System.out.print(prompt);
+            String input = scanner.nextLine();
+            try {
+                choice = Integer.parseInt(input);
+                validInput = true;
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите число!");
+            }
+        }
+        return choice;
     }
 }
 
@@ -173,7 +176,7 @@ class TaskManager {
     }
 
     public boolean removeTask(int index) {
-        if (index < 0 || index > taskList.size()) {
+        if (index < 0 || index >= taskList.size()) {
             return false;
         } else {
             taskList.remove(index);
@@ -182,7 +185,7 @@ class TaskManager {
     }
 
     public boolean makeCompleted(int index) {
-        if (index < 0 || index > taskList.size()) {
+        if (index < 0 || index >= taskList.size()) {
             return false;
         } else {
             taskList.get(index).setCompleted(true);
